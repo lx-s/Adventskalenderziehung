@@ -1,18 +1,30 @@
-<!doctype html>
+<?php
+  require 'conf.inc.php';
+?><!doctype html>
 <html lang="de" dir="ltr">
 <head>
   <meta charset="utf-8">
-  <title>LfSt Adventskalenderbot</title>
+  <title><?php echo htmlentities(PAGE_TITLE); ?></title>
 </head>
 <body>
 <pre><?php
-  require 'conf.inc.php';
-  require 'inc/phpmailer/PHPMailerAutoload.php';
-
   // ---------------------------------------------------------------------------
   // Plumbing
 
   $currentDay = date('d.m.');
+
+  function isScriptEnabled()
+  {
+      if (!DATE_RANGE_ACTIVE) {
+        return true;
+      }
+
+      $start = new DateTime(DATE_RANGE_START);
+      $end = new DateTime(DATE_RANGE_END);
+      $now = new DateTime();
+
+      return $now >= $start && $now <= $end;
+  }
 
   function writeWinnerToLog($todaysWinner)
   {
@@ -25,6 +37,7 @@
   }
 
   function sendMail($todaysWinner) {
+    require 'inc/phpmailer/PHPMailerAutoload.php';
     global $colleagues;
     global $banter;
     global $currentDay;
@@ -63,15 +76,20 @@
     $mail->AltBody = $altBody;
 
     if(!$mail->send()) {
-        echo 'Message could not be sent.';
-        echo 'Mailer Error: ' . $mail->ErrorInfo;
+        echo '<p>Message could not be sent.</p>';
+        echo '<p>Mailer Error: ' . $mail->ErrorInfo.'</p>';
     } else {
-        echo 'Message has been sent';
+        echo '<p>Message has been sent</p>';
     }
   }
 
   // ---------------------------------------------------------------------------
-  // Gruntwork
+  // Main work
+
+  if (!isScriptEnabled()) {
+    echo '<p>Script inactive. Nothing happens.</p>';
+    exit;
+  }
 
   $todaysWinner = $colleagues[rand(0, count($colleagues) - 1)];
 
