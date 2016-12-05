@@ -58,7 +58,7 @@
     foreach ($colleagues as $col) {
       $mail->addAddress($col['email'], $col['name']);
     }
-    $mail->isHTML(false);
+    $mail->isHTML(true);
 
     $mail->Subject = MAIL_SUBJECT.': '.$currentDay;
 
@@ -91,7 +91,7 @@
     exit;
   }
 
-  $todaysWinner = $colleagues[rand(0, count($colleagues) - 1)];
+  $todaysWinner = $colleagues[mt_rand(0, count($colleagues) - 1)];
 
   writeWinnerToLog($todaysWinner);
   sendMail($todaysWinner);
